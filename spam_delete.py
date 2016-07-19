@@ -21,12 +21,12 @@ def delete_spam(imap):
 	imap.select('[Gmail]/Spam') #select the Spam Folder
 	res,count = imap.search(None,'ALL') #search and get a count
 	result,spam_uid = imap.uid('Search',None,'ALL') #search all emails in the Spam Folder
-	spam_count = str(count[0], encoding='utf8')
-	if spam_count == "":
+	spam_count = count[0].decode()
+	if not spam_count:
 		log.info("No spam currently")
 		imap.close() #close the selected folder
 	else:
-		log.info(spam_count + " Spam emails selected for removal")
+		log.info(spam_count[-1] + " Spam emails selected for removal")
 		spamlist = spam_uid[0].split() #pass the list of UID to the spamlist
 		#iterate over the list and set the flags to delete
 		for spam in spamlist:
@@ -40,11 +40,12 @@ def delete_trash(imap):
 	res,count = imap.search(None,'ALL') #search and get a count
 	result,trash_uid = imap.uid('Search',None,'ALL') #search all emails in the Trash Folder
 	trash_count = str(count[0], encoding='utf8')
-	if trash_count =="":
+	trash_count = count[0].decode()
+	if not trash_count:
 		log.info("No trash currently") #this needs to be changed to logger
 		imap.close() #close the selected folder
 	else:
-		log.info(trash_count + " Emails selected for deletion")
+		log.info(trash_count[-1] + " Emails selected for deletion")
 		trashlist = trash_uid[0].split() #pass the list of UID to the trashlist
 		#iterate over the list and set the flags to delete
 		for trash in trashlist:
@@ -54,7 +55,7 @@ def delete_trash(imap):
 		log.info("Trash has been emptied") #
 
 def disconnect_imap(imap):
-	log.info("{0} Task Completed. Logging out.".format(datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")))
+	log.info("{0} Task Completed. Logging out.\n".format(datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")))
 	imap.logout() #log out of the system
 	return
 
@@ -65,7 +66,7 @@ if __name__ == '__main__':
 	conn = connect_imap() #make connection to imap
 	#if the connection has failed
 	if conn == -1:
-		log.error("Error! Unable to establish a connection. Aborting!")
+		log.error("Error! Unable to establish a connection. Aborting!\n")
 	else:
 		delete_spam(conn) #delete all spam
 		delete_trash(conn) #clear the trash
